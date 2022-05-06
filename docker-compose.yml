@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  nginx:
+    container_name: ${CONTAINER_NAME}-nginx
+    image: nginx:1.17.1-alpine
+    depends_on:
+      - app
+    volumes:
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./web:/app/web:ro
+    ports:
+      - ${NGINX_PORT}
+  app:
+    container_name: ${CONTAINER_NAME}-app
+    build:
+      context: .
+      dockerfile: deploy/app/Dockerfile
+    depends_on:
+      - mysql
+    volumes:
+      - ./:/app:delegated
+
+  mysql:
+    image: mysql:5.7
+    container_name: ${CONTAINER_NAME}-mysql
+    environment:
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - ./docker/volume/mysql:/var/lib/mysql
+      - ./docker/config/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    ports:
+      - ${DB_PORT}
