@@ -1,5 +1,4 @@
 ﻿.idea
 .env
-*.sql
 docker
 vendor
